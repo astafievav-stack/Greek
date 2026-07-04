@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Ελληνικά">
+<meta name="theme-color" content="#FBF8F1">
+<title>Ελληνικά · тренажёр</title>
+<style>
+  :root{
+    --bg:#FBF8F1; --surface:#fff; --ink:#15334A; --inkSoft:#5B7183;
+    --line:#E8E1D2; --accent:#C0902B; --accentSoft:#F1E6C8;
+    --good:#3E7C63; --goodSoft:#E2EFE7; --bad:#B14B34; --badSoft:#F5E3DC;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;}
+  body{min-height:100vh;min-height:100dvh;}
+  #app{max-width:440px;margin:0 auto;padding:18px 16px calc(40px + env(safe-area-inset-bottom));}
+  .greek{font-family:Georgia,'Times New Roman',serif;}
+  h1{font-size:15px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);font-weight:700;margin:0;}
+  .sub{color:var(--inkSoft);font-size:13px;margin:4px 0 18px;}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;}
+  .btn{border:none;border-radius:12px;padding:14px 16px;font-size:16px;font-weight:600;cursor:pointer;width:100%;font-family:inherit;}
+  .btn:active{filter:brightness(.96)}
+  .row{display:flex;gap:8px;}
+  .lbl{font-size:12px;color:var(--inkSoft);font-weight:600;margin:12px 0 6px;}
+  .seg{flex:1;border:1px solid var(--line);background:var(--surface);color:var(--inkSoft);
+    border-radius:10px;padding:9px 6px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;}
+  .seg.on{border-color:var(--ink);background:var(--ink);color:#fff;}
+  .chip{border:1px solid var(--line);background:var(--surface);color:var(--inkSoft);
+    border-radius:999px;padding:7px 12px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;}
+  .chip.on{border-color:var(--accent);background:var(--accentSoft);color:var(--ink);}
+  .wrap-chips{display:flex;flex-wrap:wrap;gap:8px;}
+  input{width:100%;padding:12px 14px;font-size:16px;border-radius:10px;border:1px solid var(--line);
+    background:#fff;color:var(--ink);outline:none;font-family:inherit;}
+  .stat{flex:1;text-align:center;}
+  .stat b{display:block;font-size:26px;font-weight:700;line-height:1;}
+  .stat span{font-size:11.5px;color:var(--inkSoft);margin-top:4px;display:block;}
+  .link{background:none;border:none;color:var(--inkSoft);font-size:12px;cursor:pointer;text-decoration:underline;font-family:inherit;}
+  .speak{background:var(--accentSoft);border:none;border-radius:999px;padding:6px 16px;font-size:14px;color:var(--ink);cursor:pointer;font-family:inherit;}
+  .bar{flex:1;height:6px;background:var(--line);border-radius:4px;overflow:hidden;}
+  .bar>div{height:100%;background:var(--accent);transition:width .2s;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+/* ============ данные ============ */
+// [категория, греческий, русский, транслитерация]
+var BUILTIN = [
+  ["months","Ιανουάριος","январь","януа́риос"],["months","Φεβρουάριος","февраль","февруа́риос"],
+  ["months","Μάρτιος","март","ма́ртиос"],["months","Απρίλιος","апрель","апри́лиос"],
+  ["months","Μάιος","май","ма́иос"],["months","Ιούνιος","июнь","ю́ниос"],
+  ["months","Ιούλιος","июль","ю́лиос"],["months","Αύγουστος","август","а́вгустос"],
+  ["months","Σεπτέμβριος","сентябрь","септэ́мвриос"],["months","Οκτώβριος","октябрь","окто́вриос"],
+  ["months","Νοέμβριος","ноябрь","ноэ́мвриос"],["months","Δεκέμβριος","декабрь","дэкэ́мвриос"],
+  ["days","η Δευτέρα","понедельник","и Дэфтэ́ра"],["days","η Τρίτη","вторник","и Три́ти"],
+  ["days","η Τετάρτη","среда","и Тэта́рти"],["days","η Πέμπτη","четверг","и Пэ́мпти"],
+  ["days","η Παρασκευή","пятница","и Параскэви́"],["days","το Σάββατο","суббота","то Са́вато"],
+  ["days","η Κυριακή","воскресенье","и Кириаки́"],
+  ["seasons","ο χειμώνας","зима","о химо́нас"],["seasons","η άνοιξη","весна","и а́никси"],
+  ["seasons","το καλοκαίρι","лето","то калокэ́ри"],["seasons","το φθινόπωρο","осень","то фтхино́поро"],
+  ["seasons","η εποχή","время года / сезон","и эпохи́"],["seasons","ο χρόνος","год","о хро́нос"],
+  ["weather","Τι καιρό έχει σήμερα;","Какая сегодня погода?","ти кэро́ э́хи си́мэра"],
+  ["weather","Ο καιρός είναι καλός","Погода хорошая","о кэро́с и́нэ кало́с"],
+  ["weather","κάνει καλό καιρό","хорошая погода","ка́ни кало́ кэро́"],
+  ["weather","κάνει κακό καιρό","плохая погода","ка́ни како́ кэро́"],
+  ["weather","κάνει ζέστη","жарко","ка́ни зэ́сти"],["weather","κάνει κρύο","холодно","ка́ни кри́о"],
+  ["weather","βρέχει","идёт дождь","врэ́хи"],["weather","χιονίζει","идёт снег","хьони́зи"],
+  ["weather","φυσάει","дует ветер","физа́и"],["weather","έχει ήλιο","солнечно","э́хи и́лио"],
+  ["weather","έχει συννεφιά","облачно","э́хи синэфья́"],["weather","έχει ομίχλη","туман","э́хи оми́хли"],
+  ["weather","αστραπές","молния","астрапэ́с"],["weather","βροντές","гром","вронтэ́с"],
+  ["weather","η βροχή","дождь","и врохи́"],["weather","το χιόνι","снег","то хьо́ни"],
+  ["weather","ο άνεμος","ветер","о а́нэмос"],["weather","η ζέστη","жара","и зэ́сти"],
+  ["weather","το κρύο","холод","то кри́о"],
+  ["nature","η λιακάδα","солнечный свет / солнышко","и лиака́да"],["nature","η θάλασσα","море","и та́ласа"],
+  ["nature","το βουνό","гора","то вуно́"],["nature","το δάσος","лес","то да́сос"],
+  ["nature","το λουλούδι","цветок","то лулу́ди"],["nature","το φύλλο","лист","то фи́ло"],
+  ["nature","το δέντρο","дерево","то дэ́ндро"],["nature","η άμμος","песок","и а́мос"],
+  ["activities","πηγαίνω διακοπές","ехать в отпуск","пийэ́но дьяко́пэс"],
+  ["activities","κάνω σκι","кататься на лыжах","ка́но ски"],
+  ["activities","πάω στην παραλία","идти на пляж","па́о стин паралья́"],
+  ["activities","κάνω βόλτα","гулять","ка́но во́лта"],
+  ["activities","βγάζω τον σκύλο μου βόλτα","выгуливать собаку","вґа́зо тон ски́ло му во́лта"],
+  ["activities","πάω στο σινεμά","пойти в кино","па́о сто синэма́"],
+  ["activities","πάω με το αυτοκίνητο","ехать на машине","па́о мэ то афтоки́нито"],
+  ["people","Έχω έναν γιο και μία κόρη","У меня есть сын и дочь","э́хо э́нан йо кэ ми́а ко́ри"],
+  ["people","ο γιος","сын","о йос"],["people","η κόρη","дочь","и ко́ри"],
+  ["people","ο σκύλος","собака (пёс)","о ски́лос"],["people","η σκύλα","собака (самка)","и ски́ла"],
+  ["dialogue","Πότε πηγαίνεις διακοπές;","Когда ты идёшь в отпуск?","по́тэ пийэ́нис дьяко́пэс"],
+  ["dialogue","Τι ώρα ξυπνάς το πρωί;","В котором часу ты просыпаешься утром?","ти о́ра ксипна́с то прои́"],
+  ["dialogue","Πού είσαι;","Где ты?","пу и́сэ"],["dialogue","Τι μέρα είναι;","Какой сегодня день?","ти мэ́ра и́нэ"],
+  ["dialogue","Πότε φεύγεις;","Когда ты уезжаешь?","по́тэ фэ́вйис"],
+  ["dialogue","Σου αρέσει ο κινηματογράφος;","Тебе нравится кино?","су арэ́си о кинимато́ґрафос"],
+  ["dialogue","Τι κάνεις στον ελεύθερό σου χρόνο;","Что ты делаешь в свободное время?","ти ка́нис стон элэ́фтхэро́ су хро́но"],
+  ["dialogue","Πηγαίνεις συχνά σινεμά;","Ты часто ходишь в кино?","пийэ́нис сихна́ синэма́"],
+  ["dialogue","Για ψώνια","за покупками","я псо́ня"],["dialogue","Κάθε Σάββατο","каждую субботу","ка́тхэ са́вато"],
+  ["dialogue","Τον Αύγουστο","в августе","тон а́вгусто"],["dialogue","Την Κυριακή","в воскресенье","тин кириаки́"],
+  ["dialogue","Πηγαίνω σινεμά","я хожу в кино","пийэ́но синэма́"],
+  ["dialogue","ξυπνάω","просыпаться","ксипна́о"],["dialogue","φεύγω","уезжать / уходить","фэ́вґо"],
+  ["dialogue","συχνά","часто","сихна́"],["dialogue","ο κινηματογράφος","кинематограф / кино","о кинимато́ґрафос"]
+];
+var CATS = {
+  months:{t:"Месяцы",i:"📅"}, days:{t:"Дни недели",i:"🗓️"}, seasons:{t:"Времена года",i:"🍂"},
+  weather:{t:"Погода",i:"🌦️"}, nature:{t:"Природа",i:"🌿"}, activities:{t:"Занятия",i:"🎿"},
+  people:{t:"Люди и быт",i:"👨‍👩‍👧"}, dialogue:{t:"Диалоги (Упр. 9)",i:"💬"}, custom:{t:"Мои слова",i:"⭐"}
+};
+var INTERVALS=[0,1,3,7,16], DAY=86400000, KEY="greek-trainer-html-v1";
+
+/* ============ состояние ============ */
+var S = { progress:{}, custom:[], streak:{count:0,last:null}, activeCats:null, mode:"flash", dir:"gr-ru",
+          screen:"home", showAdd:false };
+var sess = null;
+
+function load(){ try{ var r=localStorage.getItem(KEY); if(r){ var d=JSON.parse(r);
+  S.progress=d.progress||{}; S.custom=d.custom||[]; S.streak=d.streak||{count:0,last:null};
+  S.activeCats=d.activeCats!==undefined?d.activeCats:null; S.mode=d.mode||"flash"; S.dir=d.dir||"gr-ru"; } }catch(e){} }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify({
+  progress:S.progress, custom:S.custom, streak:S.streak, activeCats:S.activeCats, mode:S.mode, dir:S.dir })); }catch(e){} }
+
+function strip(s){ return (s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+  .replace(/[;.,!?·:]/g,"").replace(/\s+/g," ").trim(); }
+function todayKey(){ return new Date().toISOString().slice(0,10); }
+function shuffle(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+function esc(s){ return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+function allCards(){ var seen={}, out=[]; BUILTIN.concat(S.custom).forEach(function(r){
+  var g=r[1].trim(); if(seen[g])return; seen[g]=1; out.push({cat:r[0],gr:g,ru:r[2],tr:r[3]||""}); }); return out; }
+function catsInUse(){ var c=allCards(),set={}; c.forEach(function(x){set[x.cat]=1;});
+  return Object.keys(CATS).filter(function(k){return set[k];}); }
+function isActive(cat){ return S.activeCats===null || S.activeCats.indexOf(cat)>=0; }
+function pool(){ return allCards().filter(function(c){return isActive(c.cat);}); }
+function dueCards(){ var now=Date.now(); return pool().filter(function(c){ var p=S.progress[c.gr];
+  if(!p||!p.seen) return true; return (p.due||0)<=now; }); }
+function learned(){ return pool().filter(function(c){ return (S.progress[c.gr]&&S.progress[c.gr].box)>=5; }).length; }
+
+/* ============ озвучка ============ */
+function speak(text){ try{ var synth=window.speechSynthesis; if(!synth)return; synth.cancel();
+  var u=new SpeechSynthesisUtterance(text); u.lang="el-GR";
+  var v=synth.getVoices().filter(function(x){return x.lang&&x.lang.toLowerCase().indexOf("el")===0;})[0];
+  if(v)u.voice=v; u.rate=0.9; synth.speak(u);}catch(e){} }
+if(window.speechSynthesis){ window.speechSynthesis.getVoices();
+  window.speechSynthesis.onvoiceschanged=function(){ window.speechSynthesis.getVoices(); }; }
+
+/* ============ логика занятия ============ */
+function startSession(){ var q=shuffle(dueCards()).slice(0,40); if(!q.length)return;
+  sess={ q:q, idx:0, done:0, revealed:false, picked:null, typed:"", typeResult:null, choices:[] };
+  buildCard(); S.screen="study"; render(); }
+function buildCard(){ sess.revealed=false; sess.picked=null; sess.typed=""; sess.typeResult=null;
+  if(S.mode==="choice"){ var c=sess.q[sess.idx]; var f=S.dir==="gr-ru"?"ru":"gr"; var correct=c[f];
+    var others=shuffle(pool().filter(function(x){return x[f]!==correct;})).slice(0,3).map(function(x){return x[f];});
+    sess.choices=shuffle([correct].concat(others)); } }
+function prompt_(c){ return S.dir==="gr-ru"?c.gr:c.ru; }
+function answer_(c){ return S.dir==="gr-ru"?c.ru:c.gr; }
+function grade(correct){ var c=sess.q[sess.idx]; var p=S.progress[c.gr]||{box:0,due:0,seen:false};
+  var box=p.box||1; if(correct) box=Math.min(5,(p.seen?box:1)+1); else box=1;
+  S.progress[c.gr]={box:box, due:Date.now()+INTERVALS[box-1]*DAY, seen:true};
+  var tk=todayKey(); if(S.streak.last!==tk){ var yk=new Date(Date.now()-DAY).toISOString().slice(0,10);
+    S.streak={count:S.streak.last===yk?S.streak.count+1:1, last:tk}; }
+  sess.done++; save();
+  if(sess.idx+1>=sess.q.length){ S.screen="done"; } else { sess.idx++; buildCard(); } render(); }
+
+/* ============ рендер ============ */
+var app=document.getElementById("app");
+function render(){ app.innerHTML = S.screen==="home"?home():S.screen==="done"?done():study(); bind(); }
+
+function home(){
+  var due=dueCards().length, p=pool();
+  var cats=catsInUse().map(function(k){ return '<button class="chip'+(isActive(k)?' on':'')+
+    '" data-act="cat" data-k="'+k+'">'+CATS[k].i+' '+CATS[k].t+'</button>'; }).join("");
+  var add = S.showAdd
+    ? '<div class="card" style="border-color:var(--accent)">'
+      +'<input id="ngr" class="greek" placeholder="Греческий (напр. το βιβλίο)" style="margin-bottom:8px">'
+      +'<input id="nru" placeholder="Перевод (напр. книга)" style="margin-bottom:8px">'
+      +'<input id="ntr" placeholder="Произношение — по желанию" style="margin-bottom:8px">'
+      +'<div class="row"><button class="btn" data-act="addSave" style="background:var(--ink);color:#fff">Добавить</button>'
+      +'<button class="btn" data-act="addCancel" style="background:var(--line);color:var(--ink)">Отмена</button></div></div>'
+    : '<button class="btn" data-act="addOpen" style="background:var(--surface);border:1px dashed var(--accent);color:var(--accent)">＋ Добавить своё слово</button>';
+  return ''
+    +'<div style="display:flex;align-items:baseline;justify-content:space-between">'
+      +'<h1>Ελληνικά</h1><div style="font-size:14px;color:var(--inkSoft)">🔥 <b style="color:var(--ink)">'+S.streak.count+'</b></div></div>'
+    +'<p class="sub">Ежедневный тренажёр слов · уроки 1–2</p>'
+    +'<div class="card" style="margin-bottom:14px"><div class="row">'
+      +'<div class="stat"><b style="color:var(--accent);font-size:34px">'+due+'</b><span>К повтору</span></div>'
+      +'<div class="stat"><b>'+learned()+'</b><span>Выучено</span></div>'
+      +'<div class="stat"><b>'+p.length+'</b><span>Всего</span></div></div>'
+      +'<button class="btn" data-act="start" style="margin-top:14px;background:'+(due?'var(--ink)':'var(--line)')+';color:'+(due?'#fff':'var(--inkSoft)')+'"'+(due?'':' disabled')+'>'
+      +(due?('Заниматься · '+Math.min(due,40)+' слов'):'На сегодня всё повторено 🎉')+'</button></div>'
+    +'<div class="lbl">РЕЖИМ</div><div class="row">'
+      +seg("mode","flash","Карточки")+seg("mode","choice","Выбор")+seg("mode","type","Ввод")+'</div>'
+    +'<div class="lbl">НАПРАВЛЕНИЕ</div><div class="row">'
+      +seg("dir","gr-ru","🇬🇷 → 🇷🇺 узнавание")+seg("dir","ru-gr","🇷🇺 → 🇬🇷 вспоминание")+'</div>'
+    +'<div class="lbl">ТЕМЫ</div><div class="wrap-chips" style="margin-bottom:18px">'+cats+'</div>'
+    +add
+    +'<div style="text-align:center;margin-top:22px"><button class="link" data-act="reset">Сбросить прогресс</button></div>';
+}
+function seg(group,val,label){ var on=S[group]===val; return '<button class="seg'+(on?' on':'')+'" data-act="'+group+'" data-v="'+val+'">'+label+'</button>'; }
+
+function done(){ var due=dueCards().length;
+  return '<div style="padding-top:60px;text-align:center">'
+    +'<div style="font-size:52px">🎉</div><h2 style="margin-bottom:6px">Готово!</h2>'
+    +'<p class="sub" style="margin:0">Повторено слов: <b style="color:var(--ink)">'+sess.done+'</b>. Серия: 🔥 '+S.streak.count+'</p>'
+    +'<p class="sub" style="margin-top:14px">'+(due>0?('Ещё '+due+' слов ждут повтора сегодня.'):'Всё на сегодня повторено. Возвращайся завтра!')+'</p>'
+    +'<div class="row" style="margin-top:22px">'
+    +(due>0?'<button class="btn" data-act="start" style="background:var(--ink);color:#fff">Ещё круг</button>':'')
+    +'<button class="btn" data-act="goHome" style="background:var(--line);color:var(--ink)">На главную</button></div></div>';
+}
+
+function study(){
+  var c=sess.q[sess.idx], pr=prompt_(c), an=answer_(c), pg=S.dir==="gr-ru";
+  var top='<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">'
+    +'<button data-act="goHome" style="background:none;border:none;color:var(--inkSoft);font-size:22px;cursor:pointer">✕</button>'
+    +'<div class="bar"><div style="width:'+(sess.idx/sess.q.length*100)+'%"></div></div>'
+    +'<div style="font-size:13px;color:var(--inkSoft);min-width:42px;text-align:right">'+(sess.idx+1)+'/'+sess.q.length+'</div></div>';
+  var promptCard='<div class="card" style="text-align:center;padding:34px 18px;display:flex;flex-direction:column;justify-content:center;gap:10px">'
+    +'<div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--inkSoft)">'+CATS[c.cat].i+' '+CATS[c.cat].t+'</div>'
+    +'<div class="'+(pg?'greek':'')+'" style="font-size:'+(pr.length>22?22:30)+'px;font-weight:600;line-height:1.25">'+esc(pr)+'</div>'
+    +(pg?'<button class="speak" data-act="say" data-w="'+esc(c.gr)+'" style="align-self:center">🔊 Прослушать</button>':'')+'</div>';
+  var body="";
+  if(S.mode==="flash"){
+    if(!sess.revealed){ body='<div style="margin-top:14px"><button class="btn" data-act="reveal" style="background:var(--ink);color:#fff">Показать ответ</button></div>'; }
+    else { body='<div style="margin-top:14px">'
+      +'<div class="card" style="text-align:center;padding:22px 16px;margin-bottom:12px">'
+      +'<div class="'+(pg?'':'greek')+'" style="font-size:'+(an.length>22?20:26)+'px;font-weight:600">'+esc(an)+'</div>'
+      +(c.tr?'<div style="color:var(--inkSoft);font-size:14px;margin-top:6px">['+esc(c.tr)+']</div>':'')
+      +(!pg?'<button class="speak" data-act="say" data-w="'+esc(c.gr)+'" style="margin-top:10px">🔊</button>':'')+'</div>'
+      +'<div class="row"><button class="btn" data-act="grade" data-g="0" style="background:var(--badSoft);color:var(--bad)">Не вспомнил</button>'
+      +'<button class="btn" data-act="grade" data-g="1" style="background:var(--goodSoft);color:var(--good)">Знаю ✓</button></div></div>'; }
+  } else if(S.mode==="choice"){
+    var opts=sess.choices.map(function(ch){ var ok=ch===an, show=sess.picked!==null;
+      var bg='var(--surface)',col='var(--ink)',bd='var(--line)';
+      if(show&&ok){bg='var(--goodSoft)';col='var(--good)';bd='var(--good)';}
+      else if(show&&ch===sess.picked){bg='var(--badSoft)';col='var(--bad)';bd='var(--bad)';}
+      return '<button class="btn '+(pg?'':'greek')+'" data-act="pick" data-c="'+esc(ch)+'"'+(show?' disabled':'')
+        +' style="text-align:left;background:'+bg+';color:'+col+';border:1px solid '+bd+'">'+esc(ch)+(show&&ok?'  ✓':'')+'</button>'; }).join("");
+    body='<div style="margin-top:14px;display:flex;flex-direction:column;gap:10px">'+opts
+      +(sess.picked!==null?'<button class="btn" data-act="grade" data-g="'+(sess.picked===an?1:0)+'" style="background:var(--ink);color:#fff;margin-top:4px">Дальше →</button>':'')+'</div>';
+  } else {
+    if(sess.typeResult===null){
+      body='<div style="margin-top:14px"><input id="tin" placeholder="'+(pg?'Перевод на русском…':'Напиши по-гречески…')+'" class="'+(pg?'':'greek')+'">'
+        +'<button class="btn" data-act="check" style="background:var(--ink);color:#fff;margin-top:12px">Проверить</button></div>';
+    } else {
+      var okc=sess.typeResult;
+      body='<div style="margin-top:14px">'
+        +'<div class="card" style="background:'+(okc?'var(--goodSoft)':'var(--badSoft)')+';border-color:'+(okc?'var(--good)':'var(--bad)')+';text-align:center">'
+        +'<div style="font-weight:700;color:'+(okc?'var(--good)':'var(--bad)')+';margin-bottom:4px">'+(okc?'Верно! ✓':'Правильный ответ:')+'</div>'
+        +'<div class="'+(pg?'':'greek')+'" style="font-size:20px;font-weight:600">'+esc(an)+'</div>'
+        +(c.tr?'<div style="color:var(--inkSoft);font-size:13px;margin-top:4px">['+esc(c.tr)+']</div>':'')+'</div>'
+        +'<button class="btn" data-act="grade" data-g="'+(okc?1:0)+'" style="background:var(--ink);color:#fff;margin-top:12px">Дальше →</button></div>';
+    }
+  }
+  return top+promptCard+body;
+}
+
+/* ============ обработка событий ============ */
+function bind(){
+  app.querySelectorAll("[data-act]").forEach(function(el){
+    el.onclick=function(){ handle(el.dataset.act, el); };
+  });
+  var tin=document.getElementById("tin");
+  if(tin){ tin.focus(); tin.onkeydown=function(e){ if(e.key==="Enter"){ doCheck(); } }; }
+}
+function handle(act,el){
+  if(act==="mode"){ S.mode=el.dataset.v; save(); render(); }
+  else if(act==="dir"){ S.dir=el.dataset.v; save(); render(); }
+  else if(act==="cat"){ toggleCat(el.dataset.k); }
+  else if(act==="start"){ startSession(); }
+  else if(act==="goHome"){ S.screen="home"; render(); }
+  else if(act==="reveal"){ sess.revealed=true; render(); }
+  else if(act==="grade"){ grade(el.dataset.g==="1"); }
+  else if(act==="pick"){ sess.picked=el.dataset.c; render(); }
+  else if(act==="check"){ doCheck(); }
+  else if(act==="say"){ speak(el.dataset.w); }
+  else if(act==="addOpen"){ S.showAdd=true; render(); }
+  else if(act==="addCancel"){ S.showAdd=false; render(); }
+  else if(act==="addSave"){ addWord(); }
+  else if(act==="reset"){ if(confirm("Сбросить весь прогресс и серию дней? Слова останутся.")){ S.progress={}; S.streak={count:0,last:null}; save(); render(); } }
+}
+function toggleCat(k){ var base=S.activeCats===null?catsInUse().slice():S.activeCats.slice();
+  if(base.indexOf(k)>=0){ base=base.filter(function(x){return x!==k;}); if(!base.length)base=catsInUse().slice(); }
+  else { base.push(k); if(base.length===catsInUse().length)base=null; }
+  S.activeCats=base; save(); render(); }
+function doCheck(){ var t=document.getElementById("tin"); if(!t)return; sess.typed=t.value;
+  if(!sess.typed.trim())return; sess.typeResult = strip(sess.typed)===strip(answer_(sess.q[sess.idx])); render(); }
+function addWord(){ var g=document.getElementById("ngr").value.trim(), r=document.getElementById("nru").value.trim(),
+  tr=document.getElementById("ntr").value.trim(); if(!g||!r)return;
+  S.custom.push(["custom",g,r,tr]); S.showAdd=false; save(); render(); }
+
+load(); render();
+</script>
+</body>
+</html>
