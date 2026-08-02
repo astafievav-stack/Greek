@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Тренажёр экзамена A2 · Πανεπιστήμιο Κύπρου</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,500;0,700;1,500&family=Fira+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Fira+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FAF8F2;
+  --paper-2:#F2EEE2;
+  --ink:#14342B;
+  --ink-soft:#3C5850;
+  --gold:#C08A2D;
+  --gold-soft:#E7D3A6;
+  --sea:#2A6F8E;
+  --warn:#B23A2E;
+  --ok:#3E7A4F;
+  --line:#D8D0BC;
+  --shadow:0 1px 0 rgba(20,52,43,.04),0 8px 24px -18px rgba(20,52,43,.5);
+  --display:"Alegreya",Georgia,"Times New Roman",serif;
+  --body:"Fira Sans","Segoe UI",system-ui,-apple-system,sans-serif;
+  --mono:"Fira Mono",ui-monospace,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--body);
+  font-size:16px;
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+.el{font-family:var(--display);}
+.wrap{max-width:1060px;margin:0 auto;padding:0 20px 80px;}
+
+/* ---------- header ---------- */
+header{
+  border-bottom:2px solid var(--ink);
+  background:
+    linear-gradient(var(--paper),var(--paper));
+  position:relative;
+}
+.masthead{max-width:1060px;margin:0 auto;padding:26px 20px 20px;display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;}
+.brand-eyebrow{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:600;}
+.brand-title{font-family:var(--display);font-weight:700;font-size:clamp(28px,4.4vw,44px);line-height:1.02;margin:2px 0 0;letter-spacing:-.01em;}
+.brand-sub{color:var(--ink-soft);font-size:14px;margin-top:6px;max-width:46ch;}
+.scorepill{font-family:var(--mono);font-size:13px;color:var(--ink);border:1.5px solid var(--ink);border-radius:2px;padding:8px 12px;background:#fff;}
+.scorepill b{color:var(--gold);}
+
+/* ---------- skill spine / nav ---------- */
+nav.spine{max-width:1060px;margin:0 auto;padding:0 20px;display:grid;grid-template-columns:repeat(5,1fr);gap:0;border-top:1px solid var(--line);}
+nav.spine button{
+  appearance:none;border:0;border-right:1px solid var(--line);background:transparent;
+  text-align:left;padding:14px 14px 12px;cursor:pointer;color:var(--ink-soft);
+  font-family:var(--body);transition:background .15s,color .15s;position:relative;
+}
+nav.spine button:last-child{border-right:0;}
+nav.spine .n-num{font-family:var(--mono);font-size:11px;color:var(--gold);}
+nav.spine .n-el{font-family:var(--display);font-weight:700;font-size:16px;color:var(--ink);display:block;line-height:1.1;margin:2px 0 1px;}
+nav.spine .n-ru{font-size:11.5px;letter-spacing:.02em;}
+nav.spine .n-meta{font-family:var(--mono);font-size:10.5px;color:var(--ink-soft);margin-top:6px;opacity:.8;}
+nav.spine button[aria-selected="true"]{background:var(--ink);color:#fff;}
+nav.spine button[aria-selected="true"] .n-el,
+nav.spine button[aria-selected="true"] .n-ru,
+nav.spine button[aria-selected="true"] .n-meta{color:#fff;}
+nav.spine button[aria-selected="true"] .n-num{color:var(--gold-soft);}
+nav.spine button:focus-visible{outline:3px solid var(--sea);outline-offset:-3px;}
+
+/* ---------- panels ---------- */
+main{padding-top:30px;}
+.panel{display:none;animation:fade .25s ease;}
+.panel.active{display:block;}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.panel{animation:none}}
+h2.el{font-size:clamp(22px,3vw,30px);margin:0 0 4px;font-weight:700;}
+.lede{color:var(--ink-soft);margin:0 0 22px;max-width:60ch;}
+
+.card{background:#fff;border:1px solid var(--line);border-radius:4px;box-shadow:var(--shadow);padding:20px 22px;margin-bottom:18px;}
+.card h3{margin:0 0 10px;font-family:var(--display);font-size:20px;font-weight:700;}
+.grk{font-family:var(--display);}
+.muted{color:var(--ink-soft);}
+.small{font-size:13px;}
+
+/* structure table */
+table.struct{width:100%;border-collapse:collapse;font-size:14.5px;background:#fff;border:1px solid var(--line);box-shadow:var(--shadow);}
+table.struct th{background:var(--ink);color:#fff;text-align:left;padding:10px 12px;font-family:var(--body);font-weight:600;font-size:12px;letter-spacing:.04em;text-transform:uppercase;}
+table.struct td{border-top:1px solid var(--line);padding:11px 12px;vertical-align:top;}
+table.struct .skill{font-family:var(--display);font-weight:700;font-size:16px;}
+table.struct .units{font-family:var(--mono);color:var(--gold);white-space:nowrap;}
+table.struct .dur{font-family:var(--mono);white-space:nowrap;color:var(--ink-soft);}
+table.struct ul{margin:6px 0 0;padding-left:16px;}
+table.struct li{margin:1px 0;}
+
+.callout{border-left:4px solid var(--gold);background:var(--paper-2);padding:12px 16px;border-radius:0 4px 4px 0;margin:14px 0;}
+.callout.warn{border-left-color:var(--warn);}
+.callout .tag{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--warn);}
+.callout.info .tag{color:var(--sea);}
+
+/* buttons */
+button.btn{
+  appearance:none;font-family:var(--body);font-weight:600;font-size:14px;cursor:pointer;
+  border:1.5px solid var(--ink);background:var(--ink);color:#fff;border-radius:3px;padding:9px 15px;
+  transition:transform .05s,filter .15s;
+}
+button.btn:hover{filter:brightness(1.12);}
+button.btn:active{transform:translateY(1px);}
+button.btn.ghost{background:#fff;color:var(--ink);}
+button.btn.sea{background:var(--sea);border-color:var(--sea);}
+button.btn.small{padding:6px 11px;font-size:13px;}
+button.btn:focus-visible{outline:3px solid var(--sea);outline-offset:2px;}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+
+/* writing module */
+.subtabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;}
+.subtabs button{appearance:none;border:1px solid var(--line);background:#fff;color:var(--ink-soft);font-family:var(--body);font-size:13.5px;font-weight:600;padding:7px 13px;border-radius:20px;cursor:pointer;}
+.subtabs button[aria-selected="true"]{background:var(--ink);color:#fff;border-color:var(--ink);}
+.subtabs button:focus-visible{outline:3px solid var(--sea);outline-offset:2px;}
+
+.prompt-box{background:var(--paper-2);border:1px solid var(--line);border-radius:4px;padding:16px 18px;margin-bottom:14px;}
+.prompt-box .plabel{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:700;}
+.prompt-box .ptext{font-family:var(--display);font-size:18px;line-height:1.4;margin:6px 0 2px;}
+.prompt-box .pru{font-size:13px;color:var(--ink-soft);}
+
+textarea.write{width:100%;min-height:200px;resize:vertical;font-family:var(--body);font-size:15.5px;line-height:1.6;padding:14px;border:1px solid var(--line);border-radius:4px;background:#fff;color:var(--ink);}
+textarea.write:focus{outline:2px solid var(--sea);border-color:var(--sea);}
+.counter{font-family:var(--mono);font-size:13px;padding:3px 9px;border-radius:20px;border:1px solid var(--line);}
+.counter.ok{background:#EAF3EC;color:var(--ok);border-color:#BFDCC6;}
+.counter.low{background:#FBF3E4;color:#8A6516;border-color:#EAD9B0;}
+.counter.high{background:#F7E7E4;color:var(--warn);border-color:#E7C3BC;}
+
+.checklist{list-style:none;margin:12px 0 0;padding:0;}
+.checklist li{display:flex;gap:9px;align-items:flex-start;padding:3px 0;font-size:14px;}
+.checklist input{margin-top:3px;accent-color:var(--ink);width:16px;height:16px;}
+
+details.bank{border:1px solid var(--line);border-radius:4px;background:#fff;margin-top:14px;}
+details.bank>summary{cursor:pointer;padding:11px 15px;font-weight:600;font-family:var(--body);list-style:none;display:flex;justify-content:space-between;align-items:center;}
+details.bank>summary::-webkit-details-marker{display:none}
+details.bank>summary::after{content:"＋";color:var(--gold);font-weight:700;}
+details.bank[open]>summary::after{content:"－";}
+details.bank .bank-body{padding:2px 15px 14px;border-top:1px solid var(--line);}
+.phrase{display:grid;grid-template-columns:1fr;gap:2px;padding:8px 0;border-bottom:1px dashed var(--line);}
+.phrase:last-child{border-bottom:0;}
+.phrase .gr{font-family:var(--display);font-size:16px;}
+.phrase .tr{font-size:12.5px;color:var(--sea);font-family:var(--mono);}
+.phrase .ru{font-size:12.5px;color:var(--ink-soft);}
+.bank-group-title{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);font-weight:700;margin:14px 0 2px;}
+
+.model{background:var(--paper-2);border-left:3px solid var(--sea);padding:12px 16px;border-radius:0 4px 4px 0;margin-top:12px;font-family:var(--display);font-size:16px;line-height:1.5;white-space:pre-line;}
+
+/* speaking */
+.speakcard{background:#fff;border:1px solid var(--line);border-radius:4px;box-shadow:var(--shadow);padding:22px;}
+.speakcard .qgr{font-family:var(--display);font-size:clamp(20px,3vw,26px);line-height:1.35;margin:8px 0;}
+.speakcard .qru{color:var(--ink-soft);font-size:14px;}
+.roleset{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px;}
+.roleset .role{background:var(--paper-2);border:1px solid var(--line);border-radius:4px;padding:12px 14px;}
+.roleset .role .rt{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);font-weight:700;}
+.roleset .role .rg{font-family:var(--display);font-size:16px;margin-top:3px;}
+.timer{font-family:var(--mono);font-size:34px;font-weight:500;letter-spacing:.02em;}
+.timer.run{color:var(--sea);}
+
+/* quiz (reading/listening) */
+.passage{background:#fff;border:1px solid var(--line);border-radius:4px;padding:18px 20px;font-family:var(--display);font-size:17px;line-height:1.6;box-shadow:var(--shadow);}
+.q{margin:16px 0;padding:14px 16px;border:1px solid var(--line);border-radius:4px;background:#fff;}
+.q .qh{font-weight:600;margin-bottom:8px;}
+.q .qh .qgr{font-family:var(--display);font-weight:700;}
+.opt{display:block;padding:6px 8px;border-radius:4px;cursor:pointer;font-family:var(--display);font-size:16px;}
+.opt:hover{background:var(--paper-2);}
+.opt input{margin-right:9px;accent-color:var(--sea);}
+.q.correct{border-color:var(--ok);background:#F1F8F3;}
+.q.wrong{border-color:var(--warn);background:#FBF1EF;}
+.fb{font-size:13px;margin-top:8px;font-weight:600;}
+.fb.g{color:var(--ok);}
+.fb.b{color:var(--warn);}
+.gap-in{font-family:var(--display);font-size:16px;border:0;border-bottom:2px solid var(--sea);background:transparent;width:120px;text-align:center;color:var(--ink);}
+.gap-in:focus{outline:none;}
+.scorebar{font-family:var(--mono);font-size:15px;padding:10px 14px;border:1.5px solid var(--ink);border-radius:3px;display:inline-block;margin-top:6px;}
+
+.foot{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);font-size:12.5px;color:var(--ink-soft);}
+.foot code{background:var(--paper-2);padding:1px 5px;border-radius:3px;font-family:var(--mono);}
+
+@media (max-width:720px){
+  nav.spine{grid-template-columns:repeat(5,1fr);}
+  nav.spine .n-ru{display:none;}
+  nav.spine .n-meta{display:none;}
+  .roleset{grid-template-columns:1fr;}
+}
+
+@media print{
+  nav.spine,.scorepill,button.btn,.subtabs,details.bank>summary::after{display:none !important;}
+  .panel{display:block !important;page-break-after:always;}
+  body{background:#fff;font-size:12px;}
+  .card,.passage,.q{box-shadow:none;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="masthead">
+    <div>
+      <div class="brand-eyebrow">Πανεπιστήμιο Κύπρου · Σχολείο Ελληνικής Γλώσσας</div>
+      <h1 class="brand-title">Πιστοποίηση A2 · Тренажёр</h1>
+      <p class="brand-sub">Подготовка к сертификационному экзамену UCF по формату A2: четыре навыка, реальные типы заданий, таймеры и банки фраз.</p>
+    </div>
+    <div class="scorepill">4 δεξιότητες × 25 = <b>100 μονάδες</b> · γραπτή 2 ώρες</div>
+  </div>
+  <nav class="spine" role="tablist" aria-label="Разделы">
+    <button role="tab" data-panel="domi" aria-selected="true"><span class="n-num">00</span><span class="n-el">Δομή</span><span class="n-ru">Формат</span><span class="n-meta">обзор</span></button>
+    <button role="tab" data-panel="write"><span class="n-num">01</span><span class="n-el">Γραπτός</span><span class="n-ru">Письмо</span><span class="n-meta">55 λεπτά</span></button>
+    <button role="tab" data-panel="speak"><span class="n-num">02</span><span class="n-el">Προφορικός</span><span class="n-ru">Говорение</span><span class="n-meta">12 λεπτά</span></button>
+    <button role="tab" data-panel="read"><span class="n-num">03</span><span class="n-el">Ανάγνωση</span><span class="n-ru">Чтение</span><span class="n-meta">40 λεπτά</span></button>
+    <button role="tab" data-panel="listen"><span class="n-num">04</span><span class="n-el">Ακρόαση</span><span class="n-ru">Аудирование</span><span class="n-meta">25 λεπτά</span></button>
+  </nav>
+</header>
+
+<div class="wrap">
+<main>
+
+<!-- ============ DOMI ============ -->
+<section class="panel active" id="domi" role="tabpanel">
+  <h2 class="el">Δομή εξέτασης · Структура</h2>
+  <p class="lede">Официальный формат A2 Школы новогреческого языка Университета Кипра. Каждый навык — 25 баллов. Письменная часть длится 2 часа, устная — 12 минут на пару.</p>
+
+  <table class="struct">
+    <thead><tr><th>Δεξιότητα / Навык</th><th>Μον.</th><th>Τυπολογία ασκήσεων / Типы заданий</th><th>Χρόνος</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="skill">Κατανόηση<br>γραπτού λόγου<br><span class="small muted">Чтение</span></td>
+        <td class="units">25</td>
+        <td>Чтение 3–4 текстов о повседневных ситуациях. Типы вопросов:
+          <ul>
+            <li>Σωστό / Λάθος — верно / неверно</li>
+            <li>Σύνδεση / Αντιστοίχιση προτάσεων — соединить / сопоставить предложения</li>
+            <li>Πολλαπλή επιλογή με 4 επιλογές — тест, 4 варианта</li>
+            <li>Συμπλήρωση κενών — заполнить пропуски</li>
+          </ul>
+        </td>
+        <td class="dur">40′</td>
+      </tr>
+      <tr>
+        <td class="skill">Κατανόηση<br>προφορικού λόγου<br><span class="small muted">Аудирование</span></td>
+        <td class="units">25</td>
+        <td>Прослушивание 3–4 записей. Типы вопросов:
+          <ul>
+            <li>Σωστό / Λάθος</li>
+            <li>Αντιστοίχιση περιγραφής / εικόνων — описание ↔ картинка</li>
+            <li>Συμπλήρωση κενών — пропуски</li>
+            <li>Σημειώσεις — заметки</li>
+            <li>Πολλαπλή επιλογή με 3 επιλογές — тест, 3 варианта</li>
+          </ul>
+        </td>
+        <td class="dur">25′</td>
+      </tr>
+      <tr>
+        <td class="skill">Παραγωγή<br>γραπτού λόγου<br><span class="small muted">Письмо</span></td>
+        <td class="units">25</td>
+        <td><b>Μέρος Α:</b> дружеский текст или описание (80–100 слов).<br>
+            <b>Μέρος Β:</b> более официальный текст — приглашение, благодарственное письмо, поздравление и т.п. (80–100 слов).</td>
+        <td class="dur">55′</td>
+      </tr>
+      <tr>
+        <td class="skill">Παραγωγή<br>προφορικού λόγου<br><span class="small muted">Говорение</span></td>
+        <td class="units">25</td>
+        <td><b>Μέρος Α:</b> вопросы-знакомство (имя, место жительства, учёба/работа, семья, хобби).<br>
+            <b>Μέρος Β:</b> короткий связный монолог (ответ по темам уровня и/или описание картинки).<br>
+            <b>Μέρος Γ:</b> παιχνίδι ρόλων — ролевая игра.</td>
+        <td class="dur">12′ / ζεύγος</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn">
+    <span class="tag">Σημείωση 1 · ловушка</span>
+    <p style="margin:6px 0 0">В письменной части <b>нельзя использовать своё настоящее имя</b> — подписывайся вымышленным (Άννα, Νίκος, Μαρία…). За нарушение снимают баллы.</p>
+  </div>
+  <div class="callout info">
+    <span class="tag">Σημείωση 2</span>
+    <p style="margin:6px 0 0">В устной части времени на подготовку не дают — кроме 1–2 минут в 3-й части (ролевая игра), чтобы прочитать свою роль.</p>
+  </div>
+
+  <div class="card" style="margin-top:22px">
+    <h3>План на 4 недели · 30 мин/день</h3>
+    <p class="small muted" style="margin-top:0">Экзамен: Никосия, 1–18 сентября 2026. Скорректируй под свою точную дату.</p>
+    <ul style="margin:0;padding-left:18px">
+      <li><b>Неделя 1.</b> Пройти по одному заданию каждого типа во всех вкладках — понять формат. Параллельно темы Klik A2 с репетитором.</li>
+      <li><b>Неделя 2.</b> Письмо каждый день: часть А + часть Б поочерёдно, репетитору на проверку. Следить за орфографией (ββ, ευ, μβ, η/υ/ι).</li>
+      <li><b>Неделя 3.</b> Аудирование и чтение на время (таймеры во вкладках).</li>
+      <li><b>Неделя 4.</b> Полные пробники + говорение с репетитором по карточкам частей А/Б/Γ.</li>
+      <li><b>Фоном ежедневно.</b> 5–7 минут лексики в основном тренажёре.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ WRITING ============ -->
+<section class="panel" id="write" role="tabpanel">
+  <h2 class="el">Παραγωγή γραπτού λόγου · Письмо</h2>
+  <p class="lede">Два текста по 80–100 слов за 55 минут. Часть А — дружеская, часть Б — более официальная. Ниже: банк заданий, счётчик слов, чек-лист, банк фраз и образцы.</p>
+
+  <div class="subtabs" role="tablist" aria-label="Части письма">
+    <button role="tab" aria-selected="true" data-wpart="A">Μέρος Α · дружеский текст</button>
+    <button role="tab" aria-selected="false" data-wpart="B">Μέρος Β · официальный текст</button>
+  </div>
+
+  <div class="prompt-box">
+    <span class="plabel" id="w-plabel">Θέμα Α</span>
+    <div class="ptext grk" id="w-ptext"></div>
+    <div class="pru" id="w-pru"></div>
+  </div>
+  <div class="row" style="margin-bottom:12px">
+    <button class="btn ghost small" id="w-next">Άλλο θέμα · Другое задание</button>
+    <button class="btn sea small" id="w-model-btn">Δείγμα απάντησης · Показать образец</button>
+    <button class="btn ghost small" id="w-save">Сохранить черновик</button>
+    <span class="counter low" id="w-counter">0 λέξεων</span>
+  </div>
+
+  <textarea class="write" id="w-text" placeholder="Γράψε εδώ… (80–100 λέξεις)"></textarea>
+
+  <div class="model" id="w-model" hidden></div>
+
+  <ul class="checklist" id="w-checklist">
+    <li><input type="checkbox"> 80–100 слов (следи за счётчиком)</li>
+    <li><input type="checkbox"> НЕ использовал(а) своё настоящее имя — подпись вымышленная</li>
+    <li><input type="checkbox"> Правильное обращение в начале и подпись в конце</li>
+    <li><input type="checkbox"> Использовал(а) связки: πρώτα, μετά, επίσης, όμως, γιατί, τέλος</li>
+    <li><input type="checkbox"> Проверил(а) орфографию: ββ, ευ, μβ, η/υ/ι и ударения</li>
+  </ul>
+
+  <details class="bank">
+    <summary>Τράπεζα φράσεων · Банк готовых фраз</summary>
+    <div class="bank-body" id="bank-body"></div>
+  </details>
+</section>
+
+<!-- ============ SPEAKING ============ -->
+<section class="panel" id="speak" role="tabpanel">
+  <h2 class="el">Παραγωγή προφορικού λόγου · Говорение</h2>
+  <p class="lede">12 минут на пару, три части. Времени на подготовку почти нет — тренируй быстрый ответ. Кнопка «▶ Άκου» читает вопрос по-гречески вслух.</p>
+
+  <div class="subtabs" role="tablist" aria-label="Части говорения">
+    <button role="tab" aria-selected="true" data-spart="A">Μέρος Α · знакомство</button>
+    <button role="tab" aria-selected="false" data-spart="B">Μέρος Β · монолог</button>
+    <button role="tab" aria-selected="false" data-spart="C">Μέρος Γ · ролевая игра</button>
+  </div>
+
+  <div class="speakcard" id="speakcard"></div>
+
+  <div class="row" style="margin-top:14px">
+    <button class="btn ghost small" id="s-next">Επόμενο · Следующее</button>
+    <button class="btn sea small" id="s-hear">▶ Άκου · Прочитать вслух</button>
+    <button class="btn small" id="s-timer-btn">⏱ Старт 60 сек</button>
+    <span class="timer" id="s-timer">0:60</span>
+  </div>
+  <p class="small muted" style="margin-top:8px">Совет: в части А отвечай 1–2 предложениями на каждый вопрос; в части Б говори 30–45 секунд связно; в части Γ прочитай роль за 1–2 минуты, затем разыграй диалог.</p>
+</section>
+
+<!-- ============ READING ============ -->
+<section class="panel" id="read" role="tabpanel">
+  <h2 class="el">Κατανόηση γραπτού λόγου · Чтение</h2>
+  <p class="lede">Пример в реальных форматах: верно/неверно, тест с 4 вариантами, заполнение пропуска, сопоставление. Klik A2 и образцы дадут объём — здесь важен формат.</p>
+
+  <div class="row" style="margin-bottom:12px">
+    <button class="btn small" id="r-timer-btn">⏱ Старт 40:00</button>
+    <span class="timer" id="r-timer">40:00</span>
+  </div>
+
+  <div class="row" style="margin-bottom:10px;justify-content:space-between">
+    <div class="row">
+      <button class="btn ghost small" id="r-prev">‹ Προηγ.</button>
+      <button class="btn ghost small" id="r-next">Επόμ. ›</button>
+    </div>
+    <span class="small muted" id="r-nav"></span>
+  </div>
+  <div class="small muted" id="r-topic" style="margin-bottom:6px"></div>
+  <div class="passage grk" id="r-passage"></div>
+  <div id="r-questions"></div>
+  <div class="row" style="margin-top:10px">
+    <button class="btn sea" id="r-check">Έλεγχος · Проверить</button>
+    <span class="scorebar" id="r-score" hidden></span>
+  </div>
+</section>
+
+<!-- ============ LISTENING ============ -->
+<section class="panel" id="listen" role="tabpanel">
+  <h2 class="el">Κατανόηση προφορικού λόγου · Аудирование</h2>
+  <p class="lede">Нажми «▶ Άκου», чтобы прослушать запись (синтез речи, el-GR). Слушать можно дважды, как на экзамене. Затем ответь на вопросы.</p>
+
+  <div class="row" style="margin-bottom:12px">
+    <button class="btn sea" id="l-play">▶ Άκου το ηχητικό · Прослушать</button>
+    <button class="btn ghost small" id="l-show">Δείξε το κείμενο · Показать текст</button>
+    <button class="btn small" id="l-timer-btn">⏱ Старт 25:00</button>
+    <span class="timer" id="l-timer">25:00</span>
+  </div>
+
+  <div class="row" style="margin-bottom:10px;justify-content:space-between">
+    <div class="row">
+      <button class="btn ghost small" id="l-prev">‹ Προηγ.</button>
+      <button class="btn ghost small" id="l-next">Επόμ. ›</button>
+    </div>
+    <span class="small muted" id="l-nav"></span>
+  </div>
+  <div class="small muted" id="l-topic" style="margin-bottom:6px"></div>
+  <div class="passage grk" id="l-passage" hidden></div>
+  <div id="l-questions"></div>
+  <div class="row" style="margin-top:10px">
+    <button class="btn sea" id="l-check">Έλεγχος · Проверить</button>
+    <span class="scorebar" id="l-score" hidden></span>
+  </div>
+</section>
+
+<div class="foot">
+  Данные сохраняются локально в браузере (черновики, отметки). Работает офлайн. Для развёртывания: скачай HTML → загрузи в репозиторий <code>astafievav-stack/Greek</code> → commit. Синтез речи (Άκου) требует онлайн-доступа и голоса el-GR в системе.
+</div>
+</main>
+</div>
+
+<script>
+"use strict";
+
+/* ---------- tab navigation ---------- */
+const tabs=[...document.querySelectorAll('nav.spine button')];
+const panels=[...document.querySelectorAll('.panel')];
+tabs.forEach(t=>t.addEventListener('click',()=>{
+  tabs.forEach(x=>x.setAttribute('aria-selected','false'));
+  t.setAttribute('aria-selected','true');
+  const id=t.dataset.panel;
+  panels.forEach(p=>p.classList.toggle('active',p.id===id));
+  window.scrollTo({top:0,behavior:'smooth'});
+}));
+
+/* ---------- speech ---------- */
+function speak(text){
+  try{
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang='el-GR'; u.rate=0.92;
+    const v=speechSynthesis.getVoices().find(x=>/el(-|_)/i.test(x.lang));
+    if(v) u.voice=v;
+    speechSynthesis.speak(u);
+  }catch(e){ alert('Синтез речи недоступен в этом браузере/офлайн.'); }
+}
+if('speechSynthesis' in window){ speechSynthesis.onvoiceschanged=()=>{}; }
+
+/* ================= WRITING ================= */
+const writeData={
+  A:[
+    {gr:"Γράψε ένα μήνυμα σε έναν φίλο ή μια φίλη και περίγραψε πώς πέρασες τις τελευταίες σου διακοπές: πού πήγες, με ποιον, τι έκανες και πώς ήταν ο καιρός.",
+     ru:"Напиши другу/подруге о своём последнем отпуске: куда ездил(а), с кем, что делал(а), какая была погода."},
+    {gr:"Περίγραψε σε έναν καινούριο σου φίλο μια συνηθισμένη σου μέρα: τι ώρα ξυπνάς, τι κάνεις το πρωί, το απόγευμα και το βράδυ.",
+     ru:"Опиши новому другу обычный день: во сколько встаёшь, что делаешь утром, днём и вечером."},
+    {gr:"Γράψε ένα email σε μια φίλη και περίγραψε το καινούριο σου σπίτι και τη γειτονιά σου.",
+     ru:"Напиши подруге email с описанием нового дома и района."},
+    {gr:"Περίγραψε την οικογένειά σου: ποια μέλη έχει, τι δουλειά κάνουν και τι τους αρέσει να κάνουν στον ελεύθερο χρόνο τους.",
+     ru:"Опиши свою семью: кто в неё входит, кем работают, чем любят заниматься в свободное время."},
+    {gr:"Γράψε σε έναν φίλο για την πόλη όπου μένεις: τι σου αρέσει και τι δεν σου αρέσει εκεί.",
+     ru:"Напиши другу о городе, где живёшь: что нравится и что не нравится."},
+    {gr:"Περίγραψε σε έναν φίλο τι κάνεις συνήθως το Σαββατοκύριακο.",
+     ru:"Опиши другу, что ты обычно делаешь в выходные."},
+    {gr:"Γράψε σε μια φίλη για τον καλύτερό σου φίλο ή τη φίλη σου: πώς είναι, τι του/της αρέσει.",
+     ru:"Напиши подруге о своём лучшем друге/подруге: какой он/она, что любит."},
+    {gr:"Περίγραψε τι έφαγες χθες και σε ποιο εστιατόριο πήγες.",
+     ru:"Опиши, что ты ел(а) вчера и в какой ресторан ходил(а)."}
+  ],
+  B:[
+    {gr:"Οργανώνεις ένα πάρτι για τα γενέθλιά σου. Γράψε μια πρόσκληση σε έναν συνάδελφο: πότε, πού και τι ώρα θα γίνει, τι μπορεί να φέρει, και ζήτησέ του να σου απαντήσει.",
+     ru:"Приглашение: устраиваешь день рождения. Напиши коллеге приглашение — когда, где, во сколько, что принести, попроси ответить."},
+    {gr:"Ένας γνωστός σου σε βοήθησε να βρεις σπίτι. Γράψε του ένα ευχαριστήριο γράμμα.",
+     ru:"Благодарность: знакомый помог найти жильё. Напиши благодарственное письмо."},
+    {gr:"Μια φίλη σου βρήκε καινούρια δουλειά. Γράψε της ένα γράμμα και δώσε της συγχαρητήρια.",
+     ru:"Поздравление: подруга нашла новую работу. Напиши поздравительное письмо."},
+    {gr:"Γράψε μια πρόσκληση σε μια φίλη για να έρθει σπίτι σου για φαγητό το Σαββατοκύριακο.",
+     ru:"Приглашение: позови подругу к себе домой на обед в выходные."},
+    {gr:"Ο γείτονάς σου πρόσεχε τη γάτα σου όσο έλειπες. Γράψε του ένα ευχαριστήριο σημείωμα.",
+     ru:"Благодарность: сосед присматривал за кошкой, пока тебя не было. Напиши благодарственную записку."},
+    {gr:"Ένας φίλος σου παντρεύεται. Γράψε του ένα γράμμα με συγχαρητήρια και ευχές.",
+     ru:"Поздравление: друг женится. Напиши письмо с поздравлениями и пожеланиями."}
+  ]
+};
+const writeModels={
+  A:"Γεια σου Νίκο,\nΘέλω να σου περιγράψω μια συνηθισμένη μου μέρα. Ξυπνάω κάθε πρωί στις εφτά και πίνω έναν καφέ. Μετά πηγαίνω στη δουλειά με το λεωφορείο. Το μεσημέρι τρώω με τους συναδέλφους μου σε μια ταβέρνα κοντά στο γραφείο. Το απόγευμα ξεκουράζομαι λίγο και διαβάζω ελληνικά. Το βράδυ μαγειρεύω και βλέπω τηλεόραση. Μου αρέσει η ήσυχη ζωή μου, όμως το Σαββατοκύριακο βγαίνω με φίλους. Γράψε μου κι εσύ για τη δική σου μέρα!\nΦιλικά,\nΜαρία",
+  B:"Αγαπητή Ελένη,\nΣου γράφω για να σε προσκαλέσω στο πάρτι για τα γενέθλιά μου. Θα γίνει το Σάββατο, 20 Σεπτεμβρίου, στις οκτώ το βράδυ, στο σπίτι μου. Θα έχουμε φαγητό, μουσική και πολλούς φίλους. Δεν χρειάζεται να φέρεις τίποτα, μόνο το καλό σου κέφι! Αν θέλεις, φέρε και τον αδερφό σου. Παρακαλώ, απάντησέ μου μέχρι την Πέμπτη, για να ξέρω πόσοι θα είμαστε. Θα χαρώ πολύ να σε δω.\nΦιλιά,\nΆννα"
+};
+let wPart='A', wIdx=0;
+const wLabel=document.getElementById('w-plabel'),wText=document.getElementById('w-ptext'),wRu=document.getElementById('w-pru');
+const wArea=document.getElementById('w-text'),wCounter=document.getElementById('w-counter'),wModel=document.getElementById('w-model');
+function renderPrompt(){
+  const item=writeData[wPart][wIdx];
+  wLabel.textContent=(wPart==='A'?'Θέμα Α · дружеский':'Θέμα Β · официальный');
+  wText.textContent=item.gr; wRu.textContent=item.ru;
+  wModel.hidden=true;
+}
+function countWords(){
+  const n=(wArea.value.trim().match(/[^\s]+/g)||[]).length;
+  wCounter.textContent=n+' '+(n===1?'λέξη':'λέξεων');
+  wCounter.className='counter '+(n<80?'low':n>100?'high':'ok');
+}
+document.querySelectorAll('[data-wpart]').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('[data-wpart]').forEach(x=>x.setAttribute('aria-selected','false'));
+  b.setAttribute('aria-selected','true'); wPart=b.dataset.wpart; wIdx=0; renderPrompt();
+}));
+document.getElementById('w-next').addEventListener('click',()=>{wIdx=(wIdx+1)%writeData[wPart].length;renderPrompt();});
+document.getElementById('w-model-btn').addEventListener('click',()=>{
+  wModel.hidden=!wModel.hidden;
+  wModel.textContent=writeModels[wPart]+'\n\n— подпись вымышленным именем (Σημείωση 1).';
+});
+document.getElementById('w-save').addEventListener('click',()=>{
+  try{localStorage.setItem('a2_write_'+wPart+'_'+wIdx,wArea.value);alert('Черновик сохранён.');}catch(e){}
+});
+wArea.addEventListener('input',countWords);
+renderPrompt(); countWords();
+
+/* phrase bank */
+const bank=[
+  {t:"Άτυπο ξεκίνημα · неформальное обращение",items:[
+    ["Γεια σου, Μαρία!","Йа су, Мариа!","Привет, Мария!"],
+    ["Αγαπητή μου Άννα,","Агапити му Анна,","Дорогая моя Анна,"],
+    ["Καλημέρα, Νίκο!","Калимэра, Нико!","Доброе утро, Никос!"]
+  ]},
+  {t:"Άτυπο κλείσιμο · неформальная подпись",items:[
+    ["Φιλιά,","Филья,","Целую,"],
+    ["Τα λέμε σύντομα!","Та лэме синдома!","До скорого!"],
+    ["Με αγάπη,","Ме агапи,","С любовью,"],
+    ["Φιλικά,","Филика,","По-дружески,"]
+  ]},
+  {t:"Τυπικό ξεκίνημα · официальное обращение",items:[
+    ["Αγαπητέ κύριε Παπαδόπουλε,","Агапитэ кириэ Пападопуле,","Уважаемый господин Пападопулос,"],
+    ["Αγαπητή κυρία,","Агапити кириа,","Уважаемая госпожа,"]
+  ]},
+  {t:"Τυπικό κλείσιμο · официальная подпись",items:[
+    ["Με εκτίμηση,","Ме эктимиси,","С уважением,"],
+    ["Με φιλικούς χαιρετισμούς,","Ме филикус хэретизмус,","С дружеским приветом,"]
+  ]},
+  {t:"Πρόσκληση · приглашение",items:[
+    ["Θα ήθελα να σε προσκαλέσω στο…","Та ithela на се проскалэсо сто…","Я хотел(а) бы пригласить тебя на…"],
+    ["Σε περιμένω το Σάββατο στις οκτώ.","Се перимэно то Саввато стис окто.","Жду тебя в субботу в восемь."],
+    ["Θα χαρώ πολύ αν έρθεις.","Та харо поли ан эртис.","Буду очень рад(а), если придёшь."],
+    ["Παρακαλώ, απάντησέ μου μέχρι…","Паракало, апандисэ му мэхри…","Пожалуйста, ответь мне до…"]
+  ]},
+  {t:"Ευχαριστίες · благодарность",items:[
+    ["Θέλω να σε ευχαριστήσω πολύ για…","Тело на се эфхаристисо поли йа…","Хочу тебя очень поблагодарить за…"],
+    ["Σε ευχαριστώ από καρδιάς.","Се эфхаристо апо кардьяс.","Благодарю от всего сердца."],
+    ["Ήσουν πολύ ευγενικός.","Исун поли эвйеникос.","Ты был очень любезен."]
+  ]},
+  {t:"Συγχαρητήρια · поздравления",items:[
+    ["Συγχαρητήρια για τη νέα σου δουλειά!","Синхаритириа йа ти нэа су дульйа!","Поздравляю с новой работой!"],
+    ["Μπράβο σου!","Браво су!","Молодец!"],
+    ["Σου εύχομαι ό,τι καλύτερο.","Су эвхоме о,ти калитэро.","Желаю тебе всего наилучшего."]
+  ]},
+  {t:"Σύνδεσμοι · связки",items:[
+    ["πρώτα · μετά · ύστερα","прота · мэта · истэра","сначала · потом · затем"],
+    ["επίσης · ακόμη","эписис · акоми","также · ещё"],
+    ["γιατί · επειδή","йати · эпиди","потому что"],
+    ["όμως · αλλά","омос · алла","однако · но"],
+    ["τέλος","тэлос","наконец"]
+  ]}
+];
+document.getElementById('bank-body').innerHTML=bank.map(g=>
+  `<div class="bank-group-title">${g.t}</div>`+
+  g.items.map(i=>`<div class="phrase"><span class="gr">${i[0]}</span><span class="tr">${i[1]}</span><span class="ru">${i[2]}</span></div>`).join('')
+).join('');
+
+/* ================= SPEAKING ================= */
+const speakData={
+  A:[
+    {gr:"Πώς σε λένε; Από πού είσαι;",ru:"Как тебя зовут? Откуда ты?"},
+    {gr:"Πού μένεις τώρα; Σου αρέσει εκεί;",ru:"Где ты сейчас живёшь? Тебе там нравится?"},
+    {gr:"Τι δουλειά κάνεις ή τι σπουδάζεις;",ru:"Кем ты работаешь или что изучаешь?"},
+    {gr:"Πες μου λίγα λόγια για την οικογένειά σου.",ru:"Расскажи немного о своей семье."},
+    {gr:"Τι σου αρέσει να κάνεις στον ελεύθερο χρόνο σου;",ru:"Что ты любишь делать в свободное время?"},
+    {gr:"Πόσων χρονών είσαι; Πότε έχεις γενέθλια;",ru:"Сколько тебе лет? Когда у тебя день рождения?"},
+    {gr:"Ξέρεις ξένες γλώσσες; Ποιες;",ru:"Знаешь иностранные языки? Какие?"}
+  ],
+  B:[
+    {gr:"Περίγραψε μια κανονική σου μέρα από το πρωί ως το βράδυ.",ru:"Опиши свой обычный день с утра до вечера."},
+    {gr:"Μίλησέ μου για την πόλη ή τη χώρα σου.",ru:"Расскажи о своём городе или стране."},
+    {gr:"Ποιο είναι το αγαπημένο σου φαγητό και γιατί;",ru:"Какое твоё любимое блюдо и почему?"},
+    {gr:"Περίγραψε την εικόνα: μια οικογένεια τρώει σε ένα εστιατόριο δίπλα στη θάλασσα.",ru:"Опиши картинку: семья обедает в ресторане у моря."},
+    {gr:"Ποιες είναι οι καλύτερες διακοπές που έκανες ποτέ;",ru:"Какой самый лучший отпуск у тебя был?"},
+    {gr:"Περίγραψε το σπίτι σου: πόσα δωμάτια έχει και ποιο είναι το αγαπημένο σου.",ru:"Опиши свой дом: сколько комнат и какая любимая."}
+  ],
+  C:[
+    {roles:[["Ρόλος Α — Πελάτης","Είσαι σε εστιατόριο. Παράγγειλε φαγητό και ποτό και ρώτησε την τιμή."],["Ρόλος Β — Σερβιτόρος","Καλωσόρισε τον πελάτη, πρότεινε πιάτα και πες την τιμή."]],ru:"В ресторане: клиент заказывает еду и спрашивает цену; официант предлагает блюда."},
+    {roles:[["Ρόλος Α — Πελάτης","Θέλεις να αγοράσεις ένα μπλουζάκι. Ρώτησε για χρώμα, μέγεθος και τιμή."],["Ρόλος Β — Πωλητής","Βοήθησε τον πελάτη να διαλέξει και πες τις τιμές."]],ru:"В магазине одежды: покупатель выбирает футболку (цвет, размер, цена); продавец помогает."},
+    {roles:[["Ρόλος Α — Επιβάτης","Είσαι στον σταθμό. Ρώτησε πότε φεύγει το λεωφορείο για τη Λευκωσία και πόσο κοστίζει."],["Ρόλος Β — Υπάλληλος","Δώσε πληροφορίες για την ώρα και την τιμή του εισιτηρίου."]],ru:"На автовокзале: пассажир спрашивает про автобус в Никосию и цену; кассир отвечает."},
+    {roles:[["Ρόλος Α — Ασθενής","Δεν νιώθεις καλά. Εξήγησε στον γιατρό τι έχεις και ρώτησε τι να κάνεις."],["Ρόλος Β — Γιατρός","Ρώτησε για τα συμπτώματα και δώσε συμβουλές."]],ru:"У врача: пациент объясняет симптомы и спрашивает совета; врач расспрашивает и советует."},
+    {roles:[["Ρόλος Α — Πελάτης","Θέλεις να κλείσεις τραπέζι σε εστιατόριο για τέσσερα άτομα. Πες την ημέρα και την ώρα."],["Ρόλος Β — Υπάλληλος","Ρώτησε λεπτομέρειες και επιβεβαίωσε την κράτηση."]],ru:"Бронь столика: клиент бронирует стол на четверых; сотрудник уточняет и подтверждает."}
+  ]
+};
+let sPart='A',sIdx=0;
+const speakcard=document.getElementById('speakcard');
+function renderSpeak(){
+  const arr=speakData[sPart]; sIdx=sIdx%arr.length; const it=arr[sIdx];
+  if(sPart==='C'){
+    speakcard.innerHTML=`<div class="qru">${it.ru}</div><div class="roleset">`+
+      it.roles.map(r=>`<div class="role"><div class="rt">${r[0]}</div><div class="rg grk">${r[1]}</div></div>`).join('')+`</div>`;
+  }else{
+    speakcard.innerHTML=`<div class="qgr grk">${it.gr}</div><div class="qru">${it.ru}</div>`;
+  }
+}
+document.querySelectorAll('[data-spart]').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('[data-spart]').forEach(x=>x.setAttribute('aria-selected','false'));
+  b.setAttribute('aria-selected','true'); sPart=b.dataset.spart; sIdx=0; renderSpeak();
+}));
+document.getElementById('s-next').addEventListener('click',()=>{sIdx++;renderSpeak();});
+document.getElementById('s-hear').addEventListener('click',()=>{
+  const it=speakData[sPart][sIdx];
+  if(sPart==='C'){ speak(it.roles.map(r=>r[1]).join('. ')); } else { speak(it.gr); }
+});
+renderSpeak();
+
+/* ---------- generic countdown timer factory ---------- */
+function makeTimer(display,btn,seconds){
+  let remain=seconds,handle=null;
+  const fmt=s=>Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
+  const paint=()=>display.textContent=fmt(remain);
+  paint();
+  btn.addEventListener('click',()=>{
+    if(handle){clearInterval(handle);handle=null;btn.textContent=btn.dataset.start;display.classList.remove('run');return;}
+    if(remain<=0)remain=seconds;
+    btn.dataset.start=btn.textContent; btn.textContent='⏸ Пауза'; display.classList.add('run');
+    handle=setInterval(()=>{
+      remain--; paint();
+      if(remain<=0){clearInterval(handle);handle=null;display.classList.remove('run');btn.textContent=btn.dataset.start;
+        try{speak('Ο χρόνος τελείωσε.');}catch(e){}}
+    },1000);
+  });
+}
+makeTimer(document.getElementById('s-timer'),document.getElementById('s-timer-btn'),60);
+makeTimer(document.getElementById('r-timer'),document.getElementById('r-timer-btn'),40*60);
+makeTimer(document.getElementById('l-timer'),document.getElementById('l-timer-btn'),25*60);
+
+/* ================= QUIZ ENGINE (reading / listening) ================= */
+function buildQuiz(container,questions){
+  container.innerHTML=questions.map((q,qi)=>{
+    let inner='';
+    if(q.type==='tf'||q.type==='mcq'){
+      inner=q.options.map((o,oi)=>
+        `<label class="opt"><input type="radio" name="${container.id}_${qi}" value="${oi}">${o}</label>`).join('');
+    }else if(q.type==='gap'){
+      inner=`<span class="grk">${q.before||''}</span> <input class="gap-in" data-qi="${qi}" autocomplete="off"> <span class="grk">${q.after||''}</span>`;
+    }else if(q.type==='match'){
+      inner=q.pairs.map((p,pi)=>
+        `<div style="margin:6px 0" class="grk">${p.left} —
+          <select data-qi="${qi}" data-pi="${pi}" style="font-family:inherit;font-size:15px;padding:3px">
+            <option value="">…</option>
+            ${q.options.map((op,oi)=>`<option value="${oi}">${op}</option>`).join('')}
+          </select></div>`).join('');
+    }
+    return `<div class="q" data-qi="${qi}"><div class="qh"><span class="qgr">${q.q}</span></div>${inner}<div class="fb" hidden></div></div>`;
+  }).join('');
+  container._questions=questions;
+}
+function checkQuiz(container,scoreEl){
+  const qs=container._questions; let correct=0,total=0;
+  qs.forEach((q,qi)=>{
+    const qEl=container.querySelector(`.q[data-qi="${qi}"]`);
+    const fb=qEl.querySelector('.fb'); fb.hidden=false;
+    let ok=false;
+    if(q.type==='tf'||q.type==='mcq'){
+      total++;
+      const sel=container.querySelector(`input[name="${container.id}_${qi}"]:checked`);
+      ok=sel && (+sel.value===q.answer);
+    }else if(q.type==='gap'){
+      total++;
+      const inp=container.querySelector(`.gap-in[data-qi="${qi}"]`);
+      const norm=s=>(s||'').trim().toLowerCase().replace(/[.,!;]/g,'');
+      ok=q.accept.some(a=>norm(a)===norm(inp.value));
+    }else if(q.type==='match'){
+      let all=true;
+      q.pairs.forEach((p,pi)=>{total++;const s=container.querySelector(`select[data-qi="${qi}"][data-pi="${pi}"]`);
+        const good=(+s.value===p.answer); if(good)correct++; else all=false;});
+      ok=all;
+      qEl.classList.toggle('correct',ok);qEl.classList.toggle('wrong',!ok);
+      fb.className='fb '+(ok?'g':'b'); fb.textContent=ok?'✓ Σωστά':'✗ Έλεγξε τις αντιστοιχίσεις. '+(q.explain||'');
+      return;
+    }
+    if(ok)correct++;
+    qEl.classList.toggle('correct',ok);qEl.classList.toggle('wrong',!ok);
+    fb.className='fb '+(ok?'g':'b');
+    fb.textContent=(ok?'✓ Σωστά':'✗ Λάθος')+(q.explain?' · '+q.explain:'');
+  });
+  scoreEl.hidden=false;
+  scoreEl.textContent=`Σκορ: ${correct} / ${total}`;
+}
+
+/* ================= READING SET ================= */
+const reads=[
+ {topic:"Καθημερινή ζωή · повседневная жизнь",
+  text:"Η Άννα μένει στη Λεμεσό. Κάθε πρωί ξυπνάει στις εφτά και πηγαίνει στη δουλειά με το ποδήλατο. Δουλεύει σε ένα βιβλιοπωλείο στο κέντρο της πόλης. Το μεσημέρι τρώει ένα σάντουιτς σε ένα πάρκο κοντά στη θάλασσα. Το Σαββατοκύριακο δεν δουλεύει· πηγαίνει στην παραλία με τους φίλους της ή διαβάζει ένα βιβλίο στο σπίτι. Της αρέσει πολύ η ζωή στη Λεμεσό, γιατί ο καιρός είναι σχεδόν πάντα καλός.",
+  qs:[
+   {type:'tf',q:"1. Η Άννα πηγαίνει στη δουλειά με το αυτοκίνητο.",options:["Σωστό","Λάθος"],answer:1,explain:"πηγαίνει με το ποδήλατο."},
+   {type:'tf',q:"2. Η Άννα δουλεύει σε βιβλιοπωλείο.",options:["Σωστό","Λάθος"],answer:0},
+   {type:'mcq',q:"3. Πού τρώει το μεσημέρι η Άννα;",options:["Στο σπίτι","Σε ένα εστιατόριο","Σε ένα πάρκο","Στη δουλειά"],answer:2},
+   {type:'gap',q:"4. Συμπλήρωσε το κενό:",before:"Η Άννα πηγαίνει στη δουλειά με το",after:".",accept:["ποδήλατο","το ποδήλατο"],explain:"σωστή λέξη: ποδήλατο."},
+   {type:'match',q:"5. Αντιστοίχισε:",pairs:[{left:"Το Σαββατοκύριακο η Άννα",answer:1},{left:"Το μεσημέρι η Άννα",answer:0}],
+    options:["τρώει κοντά στη θάλασσα","πηγαίνει στην παραλία ή διαβάζει"],
+    explain:"Σαββατοκύριακο → παραλία/βιβλίο· μεσημέρι → σάντουιτς στο πάρκο."}
+  ]},
+ {topic:"Οικογένεια · семья",
+  text:"Ο Γιώργος είναι παντρεμένος και έχει δύο παιδιά, έναν γιο και μια κόρη. Η γυναίκα του, η Ελένη, είναι δασκάλα σε ένα δημοτικό σχολείο. Ο Γιώργος δουλεύει σε μια τράπεζα στη Λευκωσία. Ο γιος τους, ο Αντρέας, είναι δεκαπέντε χρονών και του αρέσει το ποδόσφαιρο. Η κόρη τους, η Μαρία, είναι δώδεκα χρονών και μαθαίνει πιάνο. Τα Σαββατοκύριακα η οικογένεια πηγαίνει συχνά στο χωριό, στους γονείς του Γιώργου.",
+  qs:[
+   {type:'tf',q:"1. Ο Γιώργος δεν είναι παντρεμένος.",options:["Σωστό","Λάθος"],answer:1,explain:"είναι παντρεμένος."},
+   {type:'mcq',q:"2. Τι δουλειά κάνει η Ελένη;",options:["Γιατρός","Δασκάλα","Τραπεζικός","Μαθήτρια"],answer:1},
+   {type:'tf',q:"3. Η Μαρία μαθαίνει πιάνο.",options:["Σωστό","Λάθος"],answer:0},
+   {type:'gap',q:"4. Συμπλήρωσε:",before:"Ο Αντρέας είναι",after:"χρονών.",accept:["δεκαπέντε","15"],explain:"δεκαπέντε (15)."},
+   {type:'match',q:"5. Αντιστοίχισε πρόσωπο και δουλειά:",pairs:[{left:"Ο Γιώργος",answer:0},{left:"Η Ελένη",answer:1}],
+    options:["δουλεύει σε τράπεζα","δουλεύει σε σχολείο"]}
+  ]},
+ {topic:"Χώρες & εθνικότητες · страны и национальности",
+  text:"Η Ναταλία είναι από τη Ρωσία, αλλά τώρα μένει στην Κύπρο. Μιλάει ρωσικά, αγγλικά και τώρα μαθαίνει ελληνικά. Στη δουλειά της έχει συναδέλφους από πολλές χώρες: ο Μάριο είναι Ιταλός, η Σοφί είναι Γαλλίδα και ο Άχμεντ είναι από την Αίγυπτο. Το μεσημέρι τρώνε όλοι μαζί και μιλούν αγγλικά. Η Ναταλία θέλει σε έναν χρόνο να μιλάει καλά ελληνικά, για να κάνει φίλους Κύπριους.",
+  qs:[
+   {type:'mcq',q:"1. Από πού είναι η Ναταλία;",options:["Από την Ιταλία","Από τη Γαλλία","Από τη Ρωσία","Από την Αίγυπτο"],answer:2},
+   {type:'tf',q:"2. Ο Μάριο είναι Γάλλος.",options:["Σωστό","Λάθος"],answer:1,explain:"ο Μάριο είναι Ιταλός."},
+   {type:'gap',q:"3. Συμπλήρωσε (θηλυκό):",before:"Η Σοφί είναι",after:".",accept:["Γαλλίδα","γαλλίδα"],explain:"ανώμαλο θηλυκό: Γαλλίδα."},
+   {type:'mcq',q:"4. Τι γλώσσα μιλούν το μεσημέρι στη δουλειά;",options:["Ελληνικά","Αγγλικά","Ρωσικά","Ιταλικά"],answer:1},
+   {type:'match',q:"5. Χώρα → εθνικότητα:",pairs:[{left:"Ιταλία",answer:0},{left:"Γαλλία",answer:1}],
+    options:["Ιταλός","Γαλλίδα"]}
+  ]},
+ {topic:"Ψώνια · покупки",
+  text:"Η κυρία Δήμητρα πηγαίνει κάθε Σάββατο στη λαϊκή αγορά. Εκεί αγοράζει φρέσκα φρούτα και λαχανικά. Σήμερα αγόρασε ντομάτες, πατάτες, μήλα και πορτοκάλια. Τα φρούτα στη λαϊκή είναι πιο φθηνά και πιο νόστιμα από το σουπερμάρκετ. Μετά την αγορά, η κυρία Δήμητρα πίνει έναν καφέ με τη φίλη της, τη Νίκη. Οι δύο γυναίκες μιλούν για την οικογένεια και τα σχέδιά τους.",
+  qs:[
+   {type:'tf',q:"1. Η κυρία Δήμητρα πηγαίνει στη λαϊκή κάθε Κυριακή.",options:["Σωστό","Λάθος"],answer:1,explain:"πηγαίνει κάθε Σάββατο."},
+   {type:'mcq',q:"2. Τι αγόρασε σήμερα;",options:["Ψάρια","Φρούτα και λαχανικά","Ρούχα","Βιβλία"],answer:1},
+   {type:'gap',q:"3. Συμπλήρωσε:",before:"Μετά την αγορά πίνει έναν",after:"με τη φίλη της.",accept:["καφέ"],explain:"…έναν καφέ."},
+   {type:'tf',q:"4. Τα φρούτα στη λαϊκή είναι πιο ακριβά από το σουπερμάρκετ.",options:["Σωστό","Λάθος"],answer:1,explain:"είναι πιο φθηνά."}
+  ]}
+];
+const listens=[
+ {topic:"Ωράριο καταστήματος · часы работы",
+  text:"Καλησπέρα σας! Το κατάστημά μας είναι ανοιχτό από τις εννιά το πρωί ως τις οχτώ το βράδυ, από Δευτέρα ως Παρασκευή. Το Σάββατο κλείνουμε στις δύο το μεσημέρι. Την Κυριακή είμαστε κλειστά. Για περισσότερες πληροφορίες, τηλεφωνήστε στο εικοσιδύο τετρακόσια πενήντα έξι εφτακόσια ογδόντα εννιά.",
+  qs:[
+   {type:'tf',q:"1. Το κατάστημα είναι ανοιχτό την Κυριακή.",options:["Σωστό","Λάθος"],answer:1,explain:"Την Κυριακή είναι κλειστά."},
+   {type:'mcq',q:"2. Τι ώρα κλείνει το κατάστημα το Σάββατο;",options:["Στις οχτώ","Στις δύο","Στις εννιά"],answer:1},
+   {type:'gap',q:"3. Σημειώσεις — τηλέφωνο:",before:"22 456",after:"",accept:["789","εφτακόσια ογδόντα εννιά"],explain:"…789."}
+  ]},
+ {topic:"Ξενοδοχείο & οδηγίες · отель и указания",
+  text:"Καλημέρα! Καλωσορίσατε στο ξενοδοχείο μας. Το πρωινό σερβίρεται από τις εφτά ως τις δέκα το πρωί, στο εστιατόριο στο ισόγειο. Η πισίνα είναι ανοιχτή από τις οχτώ το πρωί ως τις οχτώ το βράδυ. Το δωμάτιό σας είναι στον τρίτο όροφο, αριθμός τριάντα δύο. Το ασανσέρ είναι δεξιά. Καλή διαμονή!",
+  qs:[
+   {type:'mcq',q:"1. Πού σερβίρεται το πρωινό;",options:["Στον τρίτο όροφο","Στο ισόγειο","Στην πισίνα"],answer:1},
+   {type:'tf',q:"2. Η πισίνα κλείνει στις οχτώ το βράδυ.",options:["Σωστό","Λάθος"],answer:0},
+   {type:'gap',q:"3. Σημειώσεις — αριθμός δωματίου:",before:"Δωμάτιο",after:"",accept:["32","τριάντα δύο"],explain:"…32, τρίτος όροφος."}
+  ]},
+ {topic:"Τηλεφωνικό μήνυμα · телефонное сообщение",
+  text:"Γεια σου Ελένη, η Μαρία είμαι. Σε παίρνω για να σε καλέσω στο σπίτι μου το Σάββατο το βράδυ. Θα μαγειρέψω ελληνικό φαγητό και θα έρθουν και άλλοι φίλοι. Έλα στις οχτώ. Αν θέλεις, φέρε ένα γλυκό. Πάρε με τηλέφωνο να μου πεις αν μπορείς. Φιλιά!",
+  qs:[
+   {type:'mcq',q:"1. Πότε είναι το τραπέζι;",options:["Το Σάββατο","Την Κυριακή","Την Παρασκευή"],answer:0},
+   {type:'tf',q:"2. Η Μαρία θα μαγειρέψει ελληνικό φαγητό.",options:["Σωστό","Λάθος"],answer:0},
+   {type:'gap',q:"3. Συμπλήρωσε:",before:"Η Ελένη μπορεί να φέρει ένα",after:".",accept:["γλυκό"],explain:"…ένα γλυκό."}
+  ]},
+ {topic:"Δελτίο καιρού · прогноз погоды",
+  text:"Καλησπέρα σας! Ο καιρός για αύριο: το πρωί θα έχει ήλιο και ζέστη, με θερμοκρασία τριάντα βαθμούς. Το απόγευμα ο ουρανός θα είναι συννεφιασμένος και το βράδυ μπορεί να βρέξει. Στη θάλασσα ο άνεμος θα είναι δυνατός. Μην ξεχάσετε την ομπρέλα σας το βράδυ!",
+  qs:[
+   {type:'mcq',q:"1. Πώς θα είναι ο καιρός το πρωί;",options:["Βροχή","Ήλιος και ζέστη","Χιόνι"],answer:1},
+   {type:'tf',q:"2. Το βράδυ μπορεί να βρέξει.",options:["Σωστό","Λάθος"],answer:0},
+   {type:'gap',q:"3. Σημειώσεις — θερμοκρασία:",before:"",after:"βαθμοί",accept:["30","τριάντα"],explain:"τριάντα βαθμοί."}
+  ]}
+];
+
+/* generic navigator for a quiz set */
+function mountSet(cfg){
+  let i=0;
+  const render=()=>{
+    const item=cfg.data[i];
+    cfg.nav.textContent=`${cfg.label} ${i+1} / ${cfg.data.length}`;
+    cfg.topic.textContent='📄 '+item.topic;
+    cfg.passage.textContent=item.text;
+    if(cfg.hidePassage) cfg.passage.hidden=true;
+    buildQuiz(cfg.questions,item.qs);
+    cfg.score.hidden=true;
+  };
+  cfg.prev.addEventListener('click',()=>{i=(i-1+cfg.data.length)%cfg.data.length;render();});
+  cfg.next.addEventListener('click',()=>{i=(i+1)%cfg.data.length;render();});
+  cfg.check.addEventListener('click',()=>checkQuiz(cfg.questions,cfg.score));
+  if(cfg.play) cfg.play.addEventListener('click',()=>speak(cfg.data[i].text));
+  if(cfg.show) cfg.show.addEventListener('click',()=>{cfg.passage.hidden=!cfg.passage.hidden;});
+  render();
+}
+mountSet({data:reads,label:"Κείμενο",
+  nav:document.getElementById('r-nav'),topic:document.getElementById('r-topic'),
+  passage:document.getElementById('r-passage'),questions:document.getElementById('r-questions'),
+  score:document.getElementById('r-score'),check:document.getElementById('r-check'),
+  prev:document.getElementById('r-prev'),next:document.getElementById('r-next')});
+mountSet({data:listens,label:"Ηχητικό",hidePassage:true,
+  nav:document.getElementById('l-nav'),topic:document.getElementById('l-topic'),
+  passage:document.getElementById('l-passage'),questions:document.getElementById('l-questions'),
+  score:document.getElementById('l-score'),check:document.getElementById('l-check'),
+  prev:document.getElementById('l-prev'),next:document.getElementById('l-next'),
+  play:document.getElementById('l-play'),show:document.getElementById('l-show')});
+</script>
+</body>
+</html>
